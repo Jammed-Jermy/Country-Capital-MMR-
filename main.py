@@ -12,13 +12,11 @@ countries_list=[]
 capitals_list=[]
 probability_main=[]
 for i in master:
-    print(i)
     countries_list.append(i[0])
     capitals_list.append(i[1])
     probability_main.append(i[2])
 with open("probable.csv","r") as prob:
     reader = csv.reader(prob)
-    next(reader)
     prob_countries=[]
     prob_capitals=[]
     probability=[]
@@ -26,7 +24,7 @@ with open("probable.csv","r") as prob:
         prob_countries.append(list[0])
         prob_capitals.append(list[1])
         probability.append(list[2])
-def main_file(main_choice):
+def main_file():
     flag=True
     master_length=len(master)
     stopage=0
@@ -38,24 +36,46 @@ def main_file(main_choice):
         print(f"Do you know the capital of {country}?\n1.Yes\n2.No")
         user=int(input("Enter choice:"))
         if user==1:
-            user_capital=input("Enter the answer")
-            if user_capital==capital:
+            user_capital=input("Enter the answer:")
+            if user_capital.upper()==capital.upper():
                 print("You were right")
                 print("Play Again?\n1.Yes\n2.No")
                 if int(input("Enter choice:"))==2:
-                    flag=False
+                    exit()
                 else:
                     continue
             else:
-                print("you were wrong")
+                print("You were wrong")
                 print("Play Again?\n1.Yes\n2.No")
                 if int(input("Enter choice:"))==2:
-                    flag=False
+                    exit()
                 else:
                     continue
-    else:
-        print("Exiting")
-    #if stopage==master ask user for the probabler countries
+    if stopage==len(master):
+        print("Wow you were correct in most of them.. Do you want to check the probable files? \n1.Yes\n2.No")
+        user_input=int(input("Enter:"))
+        if user_input==1:
+            most_probable=0
+            for target_prob in probability:
+                target_prob=float(target_prob)
+                if target_prob>most_probable:
+                    most_probable=target_prob
+                    target_prob=str(target_prob)
+                    index=probability.index(target_prob)
+            print(f"Is the capital of {prob_countries[index]}, {prob_capitals[index]}?")
+            print("1.Yes\n2.No")
+            user_input=int(input("Enter:"))
+            if user_input==1:
+                probability[index] = str(float(probability[index]) + 0.25)
+                refresh_prob()
+            else:
+                probability[index] = str(float(probability[index]) - 0.25)
+                print("What is it?")
+                given_capital=input("Enter capital:")
+                probability.append("0.25")
+                prob_countries.append(prob_countries[index])
+                prob_capitals.append(given_capital)
+                refresh_prob()
 def asking():
         asked_country=input("Enter the country name:")
         if asked_country not in countries_list:
@@ -84,7 +104,6 @@ def asking():
                         master=[]
                         for x in range(len(prob_countries)):
                             master.append([prob_countries[x],prob_capitals[x],probability[x]])
-                        print(master)
                         with open("probable.csv","w",newline="\n") as prob:
                             writery=csv.writer(prob)
                             for list in master:
@@ -110,7 +129,8 @@ def refresh():
                 most_prob=target_prob
                 target_prob=str(target_prob)
                 index=probability.index(target_prob)
-        if float(target_prob)>0.5:
+        if float(most_prob)>0.5:
+            prob_countries[index]
             if prob_countries[index] not in countries_list:
                 countries_list.append(prob_countries[index])
                 capitals_list.append(prob_capitals[index])
@@ -128,11 +148,38 @@ def refresh():
                 writer.writerow(["country","capital","probability"])
                 for list in master:
                     writer.writerow(list)
-                    print("new value added")
+                print("Refreshed,new value added to main")
         else:
-            print("no new value added")
-asking()
-refresh()
+            print("Refreshed")
+def refresh_prob():
+    with open('probable.csv','w',newline="")as filey:
+        writer=csv.writer(filey)
+        master=[]
+        for i in range(len(prob_countries)):
+            master.append([prob_countries[i],prob_capitals[i],probability[i]])
+        for list in master:
+            writer.writerow(list)
+    print("probable refreshed!")
+def precision():
+    print("On making")
+print('''      |-------------------------------|
+      | 1. Play a Quizz               |
+      | 2. Ask for a Capital          |
+      | 3. Checl for Precission       |
+      |-------------------------------|''')
+try:
+    user_main=int(input("Enter a choice:"))
+    if user_main == 1:
+        main_file()
+    elif user_main==2:
+        asking()
+    elif user_main==3:
+        precision()
+except Exception as e:
+    print("Error",e)
+finally:
+    refresh()
+    
 #country,capital,probability
 #India,delhi,1.0
 #germany,soltez,0.75
