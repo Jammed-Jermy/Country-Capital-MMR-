@@ -1,29 +1,59 @@
 import csv
 import random
-with open ("main.csv","r") as f:
-    data=csv.reader(f)
-    master=[]
-    for num,listy in enumerate(data):
-        if num==0:
-            pass
+def make_check():
+    with open("main.csv","r") as f:
+        data=csv.reader(f)
+        first_row = next(data, None)
+        if first_row is None:
+            master=[['country','capital','probability'],['India', 'delhi', '1.0'], ['germany', 'soltez', '1.0'], ['shri lanka', 'colombo', '0.75']]
+            with open("main.csv","a",newline="\n") as f:
+                f.seek(0)
+                data=csv.writer(f)
+                data.writerows(master)
         else:
-            master.append(listy)
-countries_list=[]
-capitals_list=[]
-probability_main=[]
-for i in master:
-    countries_list.append(i[0])
-    capitals_list.append(i[1])
-    probability_main.append(i[2])
-with open("probable.csv","r") as prob:
-    reader = csv.reader(prob)
+            f.seek(0)
+            data=csv.reader(f)
+            master=[]
+            for num,listy in enumerate(data):
+                if num==0:
+                    pass
+                else:
+                    master.append(listy)
+    with open("probable.csv","r") as f:
+        data=csv.reader(f)
+        first_row = next(data, None)
+        if first_row is None:
+            print("empty")
+            shat=['Temp_country', 'Temp_capital', '1.0']
+            with open("probable.csv","a",newline="\n") as f:
+                f.seek(0)
+                data=csv.writer(f)
+                data.writerow(shat)
+        else:
+            f.seek(0)
+            data=csv.reader(f)
+            with open("probable.csv","r") as prob:
+                reader = csv.reader(prob)
+                master_prob=[]
+                for list in reader:
+                    master_prob.append(list)
+    return master,master_prob
+def data_giver(master,master_prob):
+    countries_list=[]
+    capitals_list=[]
+    probability_main=[]
+    for i in master:
+        countries_list.append(i[0])
+        capitals_list.append(i[1])
+        probability_main.append(i[2])
     prob_countries=[]
     prob_capitals=[]
     probability=[]
-    for list in reader:
+    for list in master_prob:
         prob_countries.append(list[0])
         prob_capitals.append(list[1])
         probability.append(list[2])
+    return countries_list,capitals_list,probability_main,prob_countries,prob_capitals,probability
 def main_file():
     flag=True
     master_length=len(master)
@@ -162,24 +192,43 @@ def refresh_prob():
     print("probable refreshed!")
 def precision():
     print("On making")
-print('''      |-------------------------------|
-      | 1. Play a Quizz               |
-      | 2. Ask for a Capital          |
-      | 3. Checl for Precission       |
-      |-------------------------------|''')
-try:
-    user_main=int(input("Enter a choice:"))
-    if user_main == 1:
-        main_file()
-    elif user_main==2:
-        asking()
-    elif user_main==3:
-        precision()
-except Exception as e:
-    print("Error",e)
-finally:
-    refresh()
-    
+again=True
+while again:
+    try:
+        print('''    |-------------------------------|
+    | 1. Play a Quizz               |
+    | 2. Ask for a Capital          |
+    | 3. Check for Precission       |
+    |-------------------------------|''')
+        master,pb=make_check()
+        countries_list,capitals_list,probability_main,prob_countries,prob_capitals,probability=data_giver(master,pb)
+        user_main=int(input("Enter a choice:"))
+        if user_main == 1:
+            main_file()
+            again=False
+        elif user_main==2:
+            asking()
+            again=False
+        elif user_main==3:
+            precision()
+            again=False
+        else:
+            print("Exit")
+            again=False
+    except Exception as e:
+        if str(e) =="cannot access local variable 'master_prob' where it is not associated with a value":
+            print("\n"*56)
+            print("New Data was created")
+            again=True
+        else:
+            print("Error",e)
+    finally:
+        if again:
+            pass
+        else:
+            print("done")
+'''
+make_check()'''
 #country,capital,probability
 #India,delhi,1.0
 #germany,soltez,0.75
